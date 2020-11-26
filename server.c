@@ -28,7 +28,7 @@ void show(evutil_socket_t fd, struct bufferevent* bev)
             if(client_id[i] != -1)
             {
                 char stat[2];
-                memset(stat,0,sizeof(char)); 
+                memset(stat,0,sizeof(char));
                 stat[0] = client_status[i] + '0';
                 stat[1] = '\0';
                 strcat(list,stat);
@@ -39,9 +39,9 @@ void show(evutil_socket_t fd, struct bufferevent* bev)
         }
         bufferevent_write(bev,list,strlen(list));
     }
-    else bufferevent_write(bev,"login first",12);   
+    else bufferevent_write(bev,"login first",11);
 }
-void acc(char *buf,evutil_socket_t fd, struct bufferevent* bev)
+void acn(char *buf,evutil_socket_t fd, struct bufferevent* bev)
 {
     if(client_cnt < 4)
     {
@@ -81,9 +81,9 @@ void acc(char *buf,evutil_socket_t fd, struct bufferevent* bev)
             bufferevent_write(bev,strcat(str,client_account[flag2]), 7);
         }
         else  bufferevent_write(bev,"failed",7);
-    }        
+    }
     else   bufferevent_write(bev,"sorry\0",5);
-}  
+}
 void conn(char *buf,evutil_socket_t fd, struct bufferevent* bev)
 {
     if(buf[strlen(buf)-1]=='\n')
@@ -94,8 +94,8 @@ void conn(char *buf,evutil_socket_t fd, struct bufferevent* bev)
     for(int i = 0; i < 4; i++)
         if(fd == client_id[i])
             from = i;
-    if(from == -1) 
-        bufferevent_write(bev,"Please login first\0",20);
+    if(from == -1)
+        bufferevent_write(bev,"Please login first",18);
     else
     {
         int flag = -1;
@@ -106,7 +106,7 @@ void conn(char *buf,evutil_socket_t fd, struct bufferevent* bev)
                 if(client_status[i] != 0)
                     flag = i;
             }
-        if(flag != -1) bufferevent_write(bev, "Player is busy",15);
+        if(flag != -1) bufferevent_write(bev, "Player is busy",14);
         else if (tar != -1)
         {
             char msg[100] = "Connect message from :";
@@ -115,8 +115,8 @@ void conn(char *buf,evutil_socket_t fd, struct bufferevent* bev)
             client_status[from] = 1;
             write(tar,strcat(msg,client_account[from]),msglen);
         }
-        else bufferevent_write(bev,"Player is not exist\0",21);   
-    }  
+        else bufferevent_write(bev,"Player is not exist",19);
+    }
 }
 void ans(char *buf,evutil_socket_t fd, struct bufferevent* bev)
 {
@@ -135,7 +135,7 @@ void ans(char *buf,evutil_socket_t fd, struct bufferevent* bev)
 		}
 		if(fd == client_id[i])
 			idx2 = i;
-	} 	
+	}
     if(ans == 'y')
     {
         if(b_info[0][0] == 0)  b_id = 0;
@@ -146,8 +146,8 @@ void ans(char *buf,evutil_socket_t fd, struct bufferevent* bev)
         b_info[b_id][1] = target;
         b_info[b_id][2] = target;
         b_info[b_id][3] = fd;
-        write(target,"start\nit's your turn\n",22);
-        bufferevent_write(bev,"start\n\0",7);
+        write(target,"start\nit's your turn\n",21);
+        bufferevent_write(bev,"start\n",6);
     }
     else if(ans == 'n')
     {
@@ -209,7 +209,7 @@ static void server_on_read(struct bufferevent* bev,void* arg)
     evutil_socket_t fd = bufferevent_getfd(bev);
     printf("%d %s",fd,buf);
     if(!strncmp(buf,"show",4)) show(fd,bev);
-    if(!strncmp("acc:",buf,4)) acc(buf,fd,bev);
+    if(!strncmp("acn:",buf,4)) acn(buf,fd,bev);
     if(!strncmp("conn:",buf,5)) conn(buf,fd,bev);
     if(!strncmp(buf,"ans:",4))  ans(buf,fd,bev);
     if(!strncmp(buf,"add:",4)) add(buf,fd,bev);
@@ -252,7 +252,7 @@ int main()
     struct event_base *base = event_base_new();
     struct evconnlistener *listener = evconnlistener_new_bind(base, server_on_accept, NULL, LEV_OPT_CLOSE_ON_FREE|LEV_OPT_REUSEABLE, -1, (struct sockaddr*)&server_in, sizeof(server_in));
     printf("Server online\n");
-    if (!listener) 
+    if (!listener)
     {
         printf("Could not create a listener!\n");
         return 1;
